@@ -1,2 +1,4 @@
-# oracle-single-install
-oracle 12c automated installation (silent installation)
+### oracle 12C 自动化静默安装脚本
+
+#### 脚本安装前配置
+
