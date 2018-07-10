@@ -2,7 +2,12 @@
 > Author QQ: 1152490990<br>
 >Author email: aery_mzc9123@163.com
 
-#### 脚本安装前配置
+#### 下载安装脚本
+```bash
+wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/oracle_install.sh
+```
+
+#### 脚本使用安装前配置
 1. 安装前请将Oracle 12C安装包放置在`/tmp`目录下
 2. 系统需要具备512MB的交换分区
 3. 并配置好以下信息
@@ -15,6 +20,6 @@
 [百度网盘](https://pan.baidu.com/s/1YvgmT0_Pm7y4O2XOxlFc3g)
 
 #### 支持系统
-<p style="color:red; font:12px;">注: 作者已在CentOS 7进行测试，无问题。如果有其他什么问题，或者您在其他系统测试通过，可以联系作者</p>
+<p style="color:red; font-size:14px;">注: 作者已在CentOS 7进行测试，无问题。如果有其他什么问题，或者您在其他系统测试通过，可以联系作者</p>
 - CentOS 7 64/32
 
