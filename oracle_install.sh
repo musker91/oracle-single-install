@@ -1,14 +1,23 @@
 #!/bin/bash
+#Author: Musker.Chao
 #oracle 12c
 #local host ip
 HostIP=""
 #oracle user password
-OracleUserPasswd=""
+OracleUserPasswd="oracle.com"
 #default `systemOracle.com`
 ORACLE_DB_PASSWD=""
 #SID/SERVERNAME,default `oriedb`
 SID=""
 #---------------------------------------------------------------------------------#
+if [[ ${HostIP} == '' ]];then
+  echo -e "\033[31mPlease config HostIP\033[0m"
+  exit
+fi
+if [ ! -f "/tmp/linuxx64_12201_database.zip" ]; then
+  echo -e "\033[31mlinuxx64_12201_database.zip not found\033[0m"
+  exit
+fi
 yum install -y binutils compat-libcap1 compat-libstdc++-33 compat-libstdc++-33.i686 glibc glibc.i686 glibc-devel glibc-devel.i686 ksh libaio libaio.i686 libaio-devel libaio-devel.i686 libX11 libX11.i686 libXau libXau.i686 libXi libXi.i686 libXtst libXtst.i686 libgcc libgcc.i686 libstdc++ libstdc++.i686 libstdc++-devel libstdc++-devel.i686 libxcb libxcb.i686 make nfs-utils net-tools smartmontools sysstat unixODBC unixODBC-devel gcc gcc-c++ libXext libXext.i686 zlib-devel zlib-devel.i686 unzip wget vim epel-release
 #config hosts
 echo "${HostIP}  DB" >> /etc/hosts
@@ -56,7 +65,6 @@ echo "if [ $USER = "oracle" ]; then
 fi
 " >> /etc/profile
 
-
 echo '# Oracle Settings
 export TMP=/tmp
 export TMPDIR=$TMP
@@ -71,26 +79,22 @@ export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
 export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
 ' > /tmp/oracleInstallTmp.txt
 
-if [ ${SID} == "" ];then
+if [[ ${SID} == "" ]];then
   SID="oriedb"
 else
   sed -i "s/oriedb/${SID}/g" /tmp/oracleInstallTmp.txt
 fi
 cat /tmp/oracleInstallTmp.txt >> /home/oracle/.bash_profile && bash /home/oracle/.bash_profile
-
-if [ ! -f "/tmp/linuxx64_12201_database.zip" ]; then
-  wget http://www.hefupal.com:8082/software/linuxx64_12201_database.zip --http-user=software --http-passwd=hefupal.software -O /tmp/linuxx64_12201_database.zip
-fi
 unzip /tmp/linuxx64_12201_database.zip -d /tmp
 chown -R oracle:oinstall /tmp/database
 mkdir /home/oracle/response && cd /home/oracle/response
-wget http://www.hefupal.com:8082/config/oracle/db_install.rsp --http-user=software --http-passwd=hefupal.software
-wget http://www.hefupal.com:8082/config/oracle/dbca_single.rsp --http-user=software --http-passwd=hefupal.software
-if [ ${ORACLE_DB_PASSWD} != "" ];then
+wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/conf/db_install.rsp
+wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/conf/dbca_single.rsp
+if [[ ${ORACLE_DB_PASSWD} != "" ]];then
   sed -i "s/systemOracle.com/${ORACLE_DB_PASSWD}/g" dbca_single.rsp
 fi
 
-if [ ${SID} != 'oriedb' ];then
+if [[ ${SID} != 'oriedb' ]];then
    sed -i "s/oriedb/${SID}/g" db_install.rsp
    sed -i "s/oriedb/${SID}/g" dbca_single.rsp
 fi
