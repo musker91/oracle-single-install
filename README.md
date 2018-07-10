@@ -20,6 +20,6 @@ wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/oracle
 [百度网盘](https://pan.baidu.com/s/1YvgmT0_Pm7y4O2XOxlFc3g)
 
 #### 支持系统
-<font color=red size=14>注: 作者已在CentOS 7进行测试，无问题。如果有其他什么问题，或者您在其他系统测试通过，可以联系作者</font>
+<font color=red size=2>注: 作者已在CentOS 7进行测试，无问题。如果有其他什么问题，或者您在其他系统测试通过，可与作者联系</font> 
 - CentOS 7 64/32
 
