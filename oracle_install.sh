@@ -117,7 +117,7 @@ while true; do
       fi
        #此安装过程会输入三次密码，超级管理员，管理员，库(这些密码也可以在配置文件中写)
        su - oracle -c "dbca -silent -createDatabase  -responseFile /home/oracle/response/dbca_single.rsp"
-	   mkdir -p /data/app/oracle/oradata/oriedb/
+       su - oracle -c "mkdir -p /data/app/oracle/oradata/oriedb/"
        exit
    fi
 done
