@@ -120,7 +120,7 @@ while true; do
 	  else
 	    echo -e "\033[31mOracle run listen\033[0m"
       fi
-      if [[ ${IS_IS_INSTANCE} == '0' ]]; then
+      if [[ ${IS_INSTANCE} == '0' ]]; then
         echo -e "\033[31mOracle install successful, but there are no instances of installation\033[0m"
         exit
       else
