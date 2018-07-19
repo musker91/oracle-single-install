@@ -15,6 +15,7 @@ wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/oracle
   - Oracle用户密码 `OracleUserPasswd` 默认为`oracle.com`
   - Oracle数据库管理员密码 `ORACLE_DB_PASSWD` 默认为 `systemOracle.com`
   - Oracle SID/ServerName `SID` 默认为 `oriedb`
+  - 是否安装实例 `IS_INSTANCE`  1-yes 0-no
 
 #### Oracle 12C安装包下载
 [百度网盘](https://pan.baidu.com/s/1YvgmT0_Pm7y4O2XOxlFc3g)

@@ -9,6 +9,9 @@ OracleUserPasswd="oracle.com"
 ORACLE_DB_PASSWD=""
 #SID/SERVERNAME,default `oriedb`
 SID=""
+#install instance
+#1-yes 0-no
+IS_INSTANCE='1'
 #---------------------------------------------------------------------------------#
 if [[ ${HostIP} == '' ]];then
   echo -e "\033[31mPlease config HostIP\033[0m"
@@ -114,10 +117,18 @@ while true; do
 	  if [ $? != 0 ]; then
 	    echo -e "\033[31mOracle no run listen\033[0m"
 	    exit
+	  else
+	    echo -e "\033[31mOracle run listen\033[0m"
       fi
-       #此安装过程会输入三次密码，超级管理员，管理员，库(这些密码也可以在配置文件中写)
-       su - oracle -c "dbca -silent -createDatabase  -responseFile /home/oracle/response/dbca_single.rsp"
-       su - oracle -c "mkdir -p /data/app/oracle/oradata/${SID}/"
-       exit
+      if [[ ${IS_IS_INSTANCE} == '0' ]]; then
+        echo -e "\033[31mOracle install successful, but there are no instances of installation\033[0m"
+        exit
+      else
+         #此安装过程会输入三次密码，超级管理员，管理员，库(这些密码也可以在配置文件中写)
+         su - oracle -c "dbca -silent -createDatabase  -responseFile /home/oracle/response/dbca_single.rsp"
+         su - oracle -c "mkdir -p /data/app/oracle/oradata/${SID}/"
+         echo -e "\033[31mOracle and instances install successful\033[0m"
+         exit
+      fi
    fi
 done
