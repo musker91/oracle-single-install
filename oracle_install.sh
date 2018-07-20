@@ -88,6 +88,7 @@ else
   sed -i "s/oriedb/${SID}/g" /tmp/oracleInstallTmp.txt
 fi
 cat /tmp/oracleInstallTmp.txt >> /home/oracle/.bash_profile && bash /home/oracle/.bash_profile
+rm -rf /tmp/oracleInstallTmp.txt
 unzip /tmp/linuxx64_12201_database.zip -d /tmp
 chown -R oracle:oinstall /tmp/database
 mkdir /home/oracle/response && cd /home/oracle/response
