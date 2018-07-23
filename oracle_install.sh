@@ -105,7 +105,7 @@ fi
 cp /tmp/database/response/netca.rsp /home/oracle/response/netca.rsp
 chown -R oracle:oinstall /home/oracle/response
 
-su - oracle -c "/tmp/database/runInstaller -force -silent -noconfig -responseFile /home/oracle/response/db_install.rsp" 1> /tmp/oracle.out && echo -e "\033[42;31moracle starting\033[0m"
+su - oracle -c "/tmp/database/runInstaller -force -silent -noconfig -responseFile /home/oracle/response/db_install.rsp -ignorePrereq" 1> /tmp/oracle.out && echo -e "\033[42;31moracle starting\033[0m"
 while true; do
    cat /tmp/oracle.out  | grep sh
    if [ $? == 0 ];then
