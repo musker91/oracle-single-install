@@ -97,6 +97,11 @@ wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/conf/d
 if [[ ${ORACLE_DB_PASSWD} != "" ]];then
   sed -i "s/systemOracle.com/${ORACLE_DB_PASSWD}/g" dbca_single.rsp
 fi
+MemTotle=`awk '($1 == "MemTotal:"){print $2/1048576}' /proc/meminfo`
+if [[ ${MemTotle} > 4 ]];then
+  sed -i "s/automaticMemoryManagement=true/automaticMemoryManagement=false/g" \
+   /home/oracle/response/dbca_single.rsp
+fi
 
 if [[ ${SID} != 'oriedb' ]];then
    sed -i "s/oriedb/${SID}/g" db_install.rsp
