@@ -45,7 +45,6 @@ net.ipv4.conf.default.rp_filter = 2
 fs.aio-max-nr = 1048576
 net.ipv4.ip_local_port_range = 9000 65500
 " >> /etc/sysctl.conf  && sysctl -p
-
 echo "oracle   soft   nofile    1024
 oracle   hard   nofile    65536
 oracle   soft   nproc    16384
@@ -58,7 +57,6 @@ oracle   soft   memlock    134217728
 echo "session  required   /lib64/security/pam_limits.so
 session  required   pam_limits.so
 " >> /etc/pam.d/login
-
 echo "if [ $USER = "oracle" ]; then
   if [ $SHELL = "/bin/ksh" ]; then
    ulimit -p 16384
@@ -68,7 +66,6 @@ echo "if [ $USER = "oracle" ]; then
   fi
 fi
 " >> /etc/profile
-
 echo '# Oracle Settings
 export TMP=/tmp
 export TMPDIR=$TMP
@@ -82,7 +79,6 @@ export PATH=$ORACLE_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
 export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
 ' > /tmp/oracleInstallTmp.txt
-
 if [[ ${SID} == "" ]];then
   SID="oriedb"
 else
@@ -103,14 +99,12 @@ if [[ ${MemTotle} > 4 ]];then
   sed -i "s/automaticMemoryManagement=true/automaticMemoryManagement=false/g" \
    /home/oracle/response/dbca_single.rsp
 fi
-
 if [[ ${SID} != 'oriedb' ]];then
    sed -i "s/oriedb/${SID}/g" db_install.rsp
    sed -i "s/oriedb/${SID}/g" dbca_single.rsp
 fi
 cp /tmp/database/response/netca.rsp /home/oracle/response/netca.rsp
 chown -R oracle:oinstall /home/oracle/response
-
 su - oracle -c "/tmp/database/runInstaller -force -silent -noconfig -responseFile /home/oracle/response/db_install.rsp -ignorePrereq" 1> /tmp/oracle.out && echo -e "\033[42;31moracle starting\033[0m"
 while true; do
    cat /tmp/oracle.out  | grep sh
