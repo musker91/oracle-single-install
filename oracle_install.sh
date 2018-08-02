@@ -2,6 +2,7 @@
 #Author: Musker.Chao
 #oracle 12c
 #local host ip
+#address: https://github.com/spdir/oracle-single-install
 HostIP=""
 #oracle user password
 OracleUserPasswd="oracle.com"
