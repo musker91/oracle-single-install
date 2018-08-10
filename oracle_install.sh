@@ -141,43 +141,44 @@ if [[ $? == 0 ]];then
 else
   echo -e "\033[34mInstallNotice >>\033[0m \033[32moracle starting\033[0m"
 fi
-con_name="
-sqlplus / as sysdba<< EOF
-show con_name;
-exit;
-EOF
-"
 while true; do
    cat /tmp/oracle.out  | grep sh
-   if [ $? == 0 ];then
+   if [[ $? == 0 ]];then
      `cat /tmp/oracle.out  | grep sh | awk -F ' ' '{print $2}' | head -1` && \
 	  echo -e "\033[34mInstallNotice >>\033[0m \033[32mScript 1 run ok\033[0m"
      `cat /tmp/oracle.out  | grep sh | awk -F ' ' '{print $2}' | tail -1` && \
 	  echo -e "\033[34mInstallNotice >>\033[0m \033[32mScript 2 run ok\033[0m"
       su - oracle -c "netca /silent /responsefile ${response}/netca.rsp"
       netstat -anptu | grep 1521
-	  if [ $? != 0 ]; then
+	  if [[ $? == 0 ]]; then
+	    echo -e "\033[34mInstallNotice >>\033[0m \033[32mOracle run listen\033[0m"
+	    break
+	  else
 	    echo -e "\033[34mInstallNotice >>\033[0m \033[05;31mOracle no run listen\033[0m"
 	    exit
-	  else
-	    echo -e "\033[34mInstallNotice >>\033[0m \033[32mOracle run listen\033[0m"
-      fi
-      if [[ ${IS_INSTANCE} == '1' ]]; then  #install single instance
-        #此安装过程会输入三次密码，超级管理员，管理员，库(这些密码也可以在配置文件中写)
-        su - oracle -c "dbca -silent -createDatabase  -responseFile ${response}/dbca_single.rsp"
-        su - oracle -c "mkdir -p /data/app/oracle/oradata/${SID}/"
-        su - oracle -c "${con_name}" > /tmp/oracle.out1
-        grep ${SID} /tmp/oracle.out1
-        if [[ $? == 0 ]];then
-          echo -e "\033[34mInstallNotice >>\033[0m \033[32mOracle and instances install successful\033[0m"
-        else
-          echo -e "\033[34mInstallNotice >>\033[0m \033[05;31mOracle install successful,but instances init faild\033[0m"
-        fi
-        exit
-      else  # not install instance
-        echo -e "\033[34mInstallNotice >>\033[0m \
-        \033[32mOracle install successful, but there are no instances of installation\033[0m"
-        exit
       fi
    fi
 done
+con_name="
+sqlplus / as sysdba<< EOF
+show con_name;
+exit;
+EOF
+"
+if [[ ${IS_INSTANCE} == '1' ]]; then  #install single instance
+  #此安装过程会输入三次密码，超级管理员，管理员，库(这些密码也可以在配置文件中写)
+  su - oracle -c "dbca -silent -createDatabase  -responseFile ${response}/dbca_single.rsp"
+  su - oracle -c "mkdir -p /data/app/oracle/oradata/${SID}/"
+  su - oracle -c "${con_name}" > /tmp/oracle.out1
+  grep ${SID} /tmp/oracle.out1
+  if [[ $? == 0 ]];then
+    echo -e "\033[34mInstallNotice >>\033[0m \033[32mOracle and instances install successful\033[0m"
+  else
+    echo -e "\033[34mInstallNotice >>\033[0m \033[05;31mOracle install successful,but instances init faild\033[0m"
+  fi
+  exit
+else  # not install instance
+  echo -e "\033[34mInstallNotice >>\033[0m \
+  \033[32mOracle install successful, but there are no instances of installation\033[0m"
+  exit
+fi
