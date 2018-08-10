@@ -1,6 +1,6 @@
 ### oracle 12C 自动化静默安装脚本
-> Author QQ: 1152490990<br>
->Author email: aery_mzc9123@163.com
+> QQ: 1152490990<br>
+> Email: aery_mzc9123@163.com
 
 #### 下载安装脚本
 ```bash
