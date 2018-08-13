@@ -148,6 +148,7 @@ while true; do
 	  echo -e "\033[34mInstallNotice >>\033[0m \033[32mScript 1 run ok\033[0m"
      `cat /tmp/oracle.out  | grep sh | awk -F ' ' '{print $2}' | tail -1` && \
 	  echo -e "\033[34mInstallNotice >>\033[0m \033[32mScript 2 run ok\033[0m"
+	  echo -e "\033[34mInstallNotice >>\033[0m \033[32mOracle start listen \033[05m...\033[0m"
       su - oracle -c "netca /silent /responsefile ${response}/netca.rsp"
       netstat -anptu | grep 1521
 	  if [[ $? == 0 ]]; then
@@ -166,6 +167,7 @@ exit;
 EOF
 "
 if [[ ${IS_INSTANCE} == '1' ]]; then  #install single instance
+  echo -e "\033[34mInstallNotice >>\033[0m \033[32mStart install single instance \033[05m...\033[0m"
   #此安装过程会输入三次密码，超级管理员，管理员，库(这些密码也可以在配置文件中写)
   su - oracle -c "dbca -silent -createDatabase  -responseFile ${response}/dbca_single.rsp"
   su - oracle -c "mkdir -p /data/app/oracle/oradata/${SID}/"
