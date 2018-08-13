@@ -1,0 +1,18 @@
+db_name='orcl'
+memory_target=1G
+processes = 150
+#audit_file_dest='<ORACLE_BASE>/admin/orcl/adump'
+audit_file_dest='/data/app/oracle/admin/orcl/adump'
+audit_trail ='db'
+db_block_size=8192
+db_domain=''
+db_recovery_file_dest='/data/app/oracle/fast_recovery_area'
+db_recovery_file_dest_size=2G
+diagnostic_dest='/data/app/oracle'
+dispatchers='(PROTOCOL=TCP) (SERVICE=orcl)'
+open_cursors=300
+remote_login_passwordfile='EXCLUSIVE'
+undo_tablespace='UNDOTBS1'
+control_files = (/data/app/oracle/oradata/orcl/ora_control01.ctl, /data/app/oracle/oradata/orcl/ora_control02.ctl)
+compatible ='12.2.0'
+enable_pluggable_database=true
