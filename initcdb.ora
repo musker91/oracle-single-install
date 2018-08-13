@@ -1,8 +1,8 @@
-db_name='orcl'
+db_name='oriedb'
 memory_target=1G
 processes = 150
-#audit_file_dest='<ORACLE_BASE>/admin/orcl/adump'
-audit_file_dest='/data/app/oracle/admin/orcl/adump'
+#audit_file_dest='<ORACLE_BASE>/admin/oriedb/adump'
+audit_file_dest='/data/app/oracle/admin/oriedb/adump'
 audit_trail ='db'
 db_block_size=8192
 db_domain=''
@@ -13,6 +13,6 @@ dispatchers='(PROTOCOL=TCP) (SERVICE=orcl)'
 open_cursors=300
 remote_login_passwordfile='EXCLUSIVE'
 undo_tablespace='UNDOTBS1'
-control_files = (/data/app/oracle/oradata/orcl/ora_control01.ctl, /data/app/oracle/oradata/orcl/ora_control02.ctl)
+control_files = (/data/app/oracle/oradata/oriedb/ora_control01.ctl, /data/app/oracle/oradata/oriedb/ora_control02.ctl)
 compatible ='12.2.0'
 enable_pluggable_database=true
