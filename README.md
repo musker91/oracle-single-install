@@ -24,6 +24,6 @@ chmod +x oracle_install.sh
 [百度网盘](https://pan.baidu.com/s/1YvgmT0_Pm7y4O2XOxlFc3g)
 
 #### 支持系统
-<font color=red size=2>注: 已脚本已在CentOS 7进行测试，无问题。如果有其他什么问题，或者您在其他系统测试通过，希望您能告知</font> 
+<font color=red size=2>注: 脚本已在CentOS 7进行测试，无问题。如果有其他什么问题，或者您在其他系统测试通过，希望您能告知</font> 
 - CentOS 7 64/32
 
