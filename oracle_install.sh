@@ -24,6 +24,12 @@ show con_name;
 exit;
 EOF
 "
+web_plugin="
+sqlplus / as sysdba<< EOF
+exec dbms_xdb_config.sethttpport(1522);
+exit;
+EOF
+"
 cdb_sql="
 sqlplus / as sysdba << EOF
 shutdown abort;
@@ -241,9 +247,11 @@ function single_instance() {
   su - oracle -c "dbca -silent -createDatabase  -responseFile ${response}/dbca_single.rsp"
   su - oracle -c "mkdir -p /data/app/oracle/oradata/${SID}/"
   su - oracle -c "${con_name}" > /tmp/oracle.out1
+  su - oracle -c "${web_plugin}"
   grep "${SID}" /tmp/oracle.out1
   if [[ $? == 0 ]];then
     echo -e "\033[34mInstallNotice >>\033[0m \033[32mOracle and instances install successful\033[0m"
+    echo -e "\033[34mYou can visit (http://${HostIP}/em:1522) for web management.\033[0m"
   else
     echo -e "\033[34mInstallNotice >>\033[0m \033[05;31mOracle install successful,but instances init faild\033[0m"
   fi
