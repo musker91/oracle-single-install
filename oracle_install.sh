@@ -183,7 +183,7 @@ function oracle_file() {
     sed -i "s/systemOracle.com/${ORACLE_DB_PASSWD}/g" dbca_single.rsp
   fi
   #option memory gt 4G
-  if [[ ${MemTotle} > 4 ]];then
+  if [[ ${MemTotle} -gt 4 ]];then
     sed -i "s/automaticMemoryManagement=true/automaticMemoryManagement=false/g" \
      /home/oracle/response/dbca_single.rsp
   fi
