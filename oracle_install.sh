@@ -267,7 +267,7 @@ function cdb_pdb() {
   if [[ ${SID} != 'oriedb' ]];then
     sed -i "s/oriedb/${SID}/g" ${INIT_CDB_FILE}
   fi
-  if [[ ${MemTotle} > 4 ]];then
+  if [[ ${MemTotle} -gt 4 ]];then
     cdb_mem=`expr ${MemTotle} / 3`
     proc=`expr 150 * ${cdb_mem}`
     sed -i "s/memory_target=1G/memory_target=${cdb_mem}G/g" ${INIT_CDB_FILE}
