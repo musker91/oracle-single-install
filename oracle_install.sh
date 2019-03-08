@@ -16,7 +16,7 @@ IS_INSTANCE='1'
 #---------------------------------------------------------------------------------#
 #Global environment variable
 response='/home/oracle/response'
-MemTotle=`awk '($1 == "MemTotal:"){print $2/1048576}' /proc/meminfo`
+MemTotle=$(grep -r 'MemTotal' /proc/meminfo | awk -F ' ' '{print int($2/1024/1024+1)}')
 ORACLE_HOME='/data/app/oracle/product/12.2.0/db_1'
 con_name="
 sqlplus / as sysdba<< EOF
@@ -183,7 +183,7 @@ function oracle_file() {
     sed -i "s/systemOracle.com/${ORACLE_DB_PASSWD}/g" dbca_single.rsp
   fi
   #option memory gt 4G
-  if [[ ${MemTotle} > 4 ]];then
+  if [[ ${MemTotle} -gt 4 ]];then
     sed -i "s/automaticMemoryManagement=true/automaticMemoryManagement=false/g" \
      /home/oracle/response/dbca_single.rsp
   fi
@@ -267,7 +267,7 @@ function cdb_pdb() {
   if [[ ${SID} != 'oriedb' ]];then
     sed -i "s/oriedb/${SID}/g" ${INIT_CDB_FILE}
   fi
-  if [[ ${MemTotle} > 4 ]];then
+  if [[ ${MemTotle} -gt 4 ]];then
     cdb_mem=`expr ${MemTotle} / 3`
     proc=`expr 150 * ${cdb_mem}`
     sed -i "s/memory_target=1G/memory_target=${cdb_mem}G/g" ${INIT_CDB_FILE}
