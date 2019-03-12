@@ -10,7 +10,11 @@ OracleUserPasswd="oracle.com"
 ORACLE_DB_PASSWD=""
 #SID/SERVERNAME,default `oriedb`
 SID=""
-#install instance
+# Install single instance choose charset
+# 1-AL32UTF8(default), 2-ZHS16GBK
+# Currently only supports single instance, does not support pdb
+SINGLE_CHARSET='1'
+# Install instance
 #0-no,1-singleInstance,2-cdb
 IS_INSTANCE='1'
 #---------------------------------------------------------------------------------#
@@ -191,6 +195,10 @@ function oracle_file() {
   if [[ ${SID} != 'oriedb' ]];then
      sed -i "s/oriedb/${SID}/g" db_install.rsp
      sed -i "s/oriedb/${SID}/g" dbca_single.rsp
+  fi
+  #modify oracle single instance default charset
+  if [[ ${SINGLE_CHARSET} == '2' ]]; then
+     sed -i 's/characterSet=AL32UTF8/characterSet=ZHS16GBK/g' dbca_single.rsp
   fi
   #copy config file to oracle home
   cp /tmp/database/response/netca.rsp ${response}/netca.rsp
