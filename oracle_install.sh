@@ -17,8 +17,12 @@ SINGLE_CHARSET='1'
 # Install instance
 #0-no,1-singleInstance,2-cdb
 IS_INSTANCE='1'
+# Choose configure file path
+# 0-remote(default)  1-local
+Get_Config_Method="0"
 #---------------------------------------------------------------------------------#
 #Global environment variable
+root_path=`pwd`
 response='/home/oracle/response'
 MemTotle=$(grep -r 'MemTotal' /proc/meminfo | awk -F ' ' '{print int($2/1024/1024+1)}')
 ORACLE_HOME='/data/app/oracle/product/12.2.0/db_1'
@@ -80,13 +84,19 @@ fi
 function j_para() {
   #判断必要参数是否存在
   if [[ ${HostIP} == '' ]];then
-    echo -e "\033[34mInstallNotice >>\033[0m \033[05;31mPlease config HostIP\033[0m"
+    echo -e "\033[34mInstallNotice >>\033[0m \033[31mPlease config HostIP\033[0m"
     exit
   fi
   #判断数据库包文件是否存在
   if [ ! -f "/tmp/linuxx64_12201_database.zip" ]; then
-    echo -e "\033[34mInstallNotice >>\033[0m \033[05;31mlinuxx64_12201_database.zip not found\033[0m"
+    echo -e "\033[34mInstallNotice >>\033[0m \033[31mlinuxx64_12201_database.zip not found\033[0m"
     exit
+  fi
+  if [[ ${Get_Config_Method} == "1" ]]; then
+    if [[ ! -f ${root_path}/conf/db_install.rsp || ! -f ${root_path}/conf/dbca_single.rsp ]]; then
+      echo -e "\033[34mInstallNotice >>\033[0m \033[31m ./conf/db_install.rsp or ./conf/dbca_single.rsp file not found\033[0m"
+      exit
+    fi
   fi
 }
 
@@ -115,7 +125,7 @@ function base_config() {
   mkdir -p ${orcl_home}/oracle/product/12.2.0/db_1 && chmod -R 775 ${orcl_home}/oracle \
   && chown -R oracle:oinstall ${orcl_home}
   #modify some file
-  echo "fs.file-max = 6815744
+  echo 'fs.file-max = 6815744
   kernel.sem = 250 32000 100 128
   kernel.shmmni = 4096
   kernel.shmall = 1073741824
@@ -129,8 +139,8 @@ function base_config() {
   net.ipv4.conf.default.rp_filter = 2
   fs.aio-max-nr = 1048576
   net.ipv4.ip_local_port_range = 9000 65500
-  " >> /etc/sysctl.conf  && sysctl -p
-  echo "oracle   soft   nofile    1024
+  ' >> /etc/sysctl.conf  && sysctl -p
+  echo 'oracle   soft   nofile    1024
   oracle   hard   nofile    65536
   oracle   soft   nproc    16384
   oracle   hard   nproc    16384
@@ -138,11 +148,11 @@ function base_config() {
   oracle   hard   stack    32768
   oracle   hard   memlock    134217728
   oracle   soft   memlock    134217728
-  " >> /etc/security/limits.d/20-nproc.conf
-  echo "session  required   /lib64/security/pam_limits.so
+  ' >> /etc/security/limits.d/20-nproc.conf
+  echo 'session  required   /lib64/security/pam_limits.so
   session  required   pam_limits.so
-  " >> /etc/pam.d/login
-  echo "if [ $USER = "oracle" ]; then
+  ' >> /etc/pam.d/login
+  echo 'if [ $USER = "oracle" ]; then
     if [ $SHELL = "/bin/ksh" ]; then
      ulimit -p 16384
      ulimit -n 65536
@@ -150,7 +160,7 @@ function base_config() {
      ulimit -u 16384 -n 65536
     fi
   fi
-  " >> /etc/profile
+  ' >> /etc/profile
   #add oracle environmental variable
   echo '# Oracle Settings
   export TMP=/tmp
@@ -180,15 +190,21 @@ function oracle_file() {
   chown -R oracle:oinstall /tmp/database
   #get install config file
   mkdir ${response} && cd ${response}
-  wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/conf/db_install.rsp
-  wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/conf/dbca_single.rsp
+  # get config method
+  if [[ ${Get_Config_Method} == "1" ]]; then
+    cp ${root_path}/conf/db_install.rsp .
+    cp ${root_path}/conf/dbca_single.rsp .
+  else
+    wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/conf/db_install.rsp
+    wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/conf/dbca_single.rsp
+  fi
   #modify config file
   if [[ ${ORACLE_DB_PASSWD} != "" ]];then
     sed -i "s/systemOracle.com/${ORACLE_DB_PASSWD}/g" dbca_single.rsp
   fi
   #option memory gt 4G
   if [[ ${MemTotle} -gt 4 ]];then
-    sed -i "s/automaticMemoryManagement=true/automaticMemoryManagement=false/g" \
+    sed -i 's/automaticMemoryManagement=true/automaticMemoryManagement=false/g' \
      /home/oracle/response/dbca_single.rsp
   fi
   #modify config file `SID`
@@ -215,7 +231,7 @@ function install_oracle() {
   while true; do
     grep '[FATAL] [INS-10101]' ${oracle_out} &> /dev/null
     if [[ $? == 0 ]];then
-      echo -e "\033[34mInstallNotice >>\033[0m \033[05;31moracle start install has [ERROR]\033[0m"
+      echo -e "\033[34mInstallNotice >>\033[0m \033[31moracle start install has [ERROR]\033[0m"
       cat ${oracle_out}
       exit
     fi
@@ -241,7 +257,7 @@ function install_oracle() {
         echo -e "\033[34mInstallNotice >>\033[0m \033[32mOracle run listen\033[0m"
         break
       else
-        echo -e "\033[34mInstallNotice >>\033[0m \033[05;31mOracle no run listen\033[0m"
+        echo -e "\033[34mInstallNotice >>\033[0m \033[31mOracle no run listen\033[0m"
         exit
       fi
     fi
@@ -261,7 +277,7 @@ function single_instance() {
     echo -e "\033[34mInstallNotice >>\033[0m \033[32mOracle and instances install successful\033[0m"
     echo -e "\033[34mYou can visit (http://${HostIP}/em:1522) for web management.\033[0m"
   else
-    echo -e "\033[34mInstallNotice >>\033[0m \033[05;31mOracle install successful,but instances init faild\033[0m"
+    echo -e "\033[34mInstallNotice >>\033[0m \033[31mOracle install successful,but instances init faild\033[0m"
   fi
   rm -rf /tmp/oracle.out1
   exit
