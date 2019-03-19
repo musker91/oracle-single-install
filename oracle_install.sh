@@ -22,6 +22,9 @@ IS_INSTANCE='1'
 Get_Config_Method="0"
 #---------------------------------------------------------------------------------#
 #Global environment variable
+if [[ ${SID} == "" ]];then
+  SID="oriedb"
+fi
 root_path=`pwd`
 response='/home/oracle/response'
 MemTotle=$(grep -r 'MemTotal' /proc/meminfo | awk -F ' ' '{print int($2/1024/1024+1)}')
@@ -39,16 +42,16 @@ exit;
 EOF
 "
 cdb_sql="
-sqlplus / as sysdba << EOF
+sqlplus / as sysdba<< EOF
 shutdown abort;
 create spfile from pfile='"$ORACLE_HOME/dbs/initcdb.ora"';
 startup nomount;
 CREATE DATABASE ${SID}
 USER SYS IDENTIFIED BY pass
 USER SYSTEM IDENTIFIED BY pass
-LOGFILE GROUP 1 ('/data/app/oracle/oradata/${SID}/redo01a.log','/data/app/oracle/oradata/${SID}/redo01b.log')
+LOGFILE GROUP 1 ('"/data/app/oracle/oradata/${SID}/redo01a.log"','"/data/app/oracle/oradata/${SID}/redo01b.log"')
 SIZE 100M BLOCKSIZE 512,
-GROUP 2 ('/data/app/oracle/oradata/${SID}/redo02a.log','/data/app/oracle/oradata/${SID}/redo02b.log')
+GROUP 2 ('"/data/app/oracle/oradata/${SID}/redo02a.log"','"/data/app/oracle/oradata/${SID}/redo02b.log"')
 SIZE 100M BLOCKSIZE 512
 MAXLOGHISTORY 1
 MAXLOGFILES 16
@@ -57,17 +60,17 @@ MAXDATAFILES 1024
 CHARACTER SET AL32UTF8
 NATIONAL CHARACTER SET AL16UTF16
 EXTENT MANAGEMENT LOCAL
-DATAFILE '/data/app/oracle/oradata/${SID}/system01.dbf' SIZE 700M
-SYSAUX DATAFILE '/data/app/oracle/oradata/${SID}/sysaux01.dbf' SIZE 550M
+DATAFILE '"/data/app/oracle/oradata/${SID}/system01.dbf"' SIZE 700M
+SYSAUX DATAFILE '"/data/app/oracle/oradata/${SID}/sysaux01.dbf"' SIZE 550M
 DEFAULT TABLESPACE deftbs
-DATAFILE '/data/app/oracle/oradata/${SID}/deftbs01.dbf' SIZE 500M
+DATAFILE '"/data/app/oracle/oradata/${SID}/deftbs01.dbf"' SIZE 500M
 DEFAULT TEMPORARY TABLESPACE tempts1
-TEMPFILE '/data/app/oracle/oradata/${SID}/temp01.dbf' SIZE 20M
+TEMPFILE '"/data/app/oracle/oradata/${SID}/temp01.dbf"' SIZE 20M
 UNDO TABLESPACE undotbs1
-DATAFILE '/data/app/oracle/oradata/${SID}/undotbs01.dbf' SIZE 200M
+DATAFILE '"/data/app/oracle/oradata/${SID}/undotbs01.dbf"' SIZE 200M
 ENABLE PLUGGABLE DATABASE
 SEED
-FILE_NAME_CONVERT = ('/data/app/oracle/oradata/${SID}/',
+FILE_NAME_CONVERT = ('"/data/app/oracle/oradata/${SID}/"',
 '/data/app/oracle/oradata/pdbseed/')
 SYSTEM DATAFILES SIZE 125M AUTOEXTEND ON NEXT 10M MAXSIZE UNLIMITED
 SYSAUX DATAFILES SIZE 100M
@@ -76,9 +79,6 @@ DATAFILE '/data/app/oracle/oradata/pdbseed/usertbs01.dbf' SIZE 200M;
 exit
 EOF
 "
-if [[ ${SID} == "" ]];then
-  SID="oriedb"
-fi
 
 #Judgment parameter
 function j_para() {
@@ -93,9 +93,21 @@ function j_para() {
     exit
   fi
   if [[ ${Get_Config_Method} == "1" ]]; then
-    if [[ ! -f ${root_path}/conf/db_install.rsp || ! -f ${root_path}/conf/dbca_single.rsp ]]; then
-      echo -e "\033[34mInstallNotice >>\033[0m \033[31m ./conf/db_install.rsp or ./conf/dbca_single.rsp file not found\033[0m"
-      exit
+    if [[ ${IS_INSTANCE} == '1' ]]; then
+      if [[ ! -f ${root_path}/conf/db_install.rsp || ! -f ${root_path}/conf/dbca_single.rsp ]]; then
+        echo -e "\033[34mInstallNotice >>\033[0m \033[31m ./conf/db_install.rsp or ./conf/dbca_single.rsp file not found\033[0m"
+        exit
+      fi
+    elif [[ ${IS_INSTANCE} == '2' ]]; then
+      if [[ ! -f ${root_path}/conf/initcdb.ora ]]; then
+        echo -e "\033[34mInstallNotice >>\033[0m \033[31m ./conf/initcdb.ora file not found\033[0m"
+        exit
+      fi
+    else
+      if [[ ! -f ${root_path}/conf/db_install.rsp ]]; then
+        echo -e "\033[34mInstallNotice >>\033[0m \033[31m ./conf/db_install.rsp file not found\033[0m"
+        exit
+      fi
     fi
   fi
 }
@@ -275,7 +287,7 @@ function single_instance() {
   grep "${SID}" /tmp/oracle.out1
   if [[ $? == 0 ]];then
     echo -e "\033[34mInstallNotice >>\033[0m \033[32mOracle and instances install successful\033[0m"
-    echo -e "\033[34mYou can visit (http://${HostIP}/em:1522) for web management.\033[0m"
+    echo -e "\033[34mYou can visit (http://${HostIP}:1522/em) for web management.\033[0m"
   else
     echo -e "\033[34mInstallNotice >>\033[0m \033[31mOracle install successful,but instances init faild\033[0m"
   fi
@@ -287,15 +299,20 @@ function single_instance() {
 function cdb_pdb() {
   echo -e "\033[34mInstallNotice >>\033[0m \033[32mStart install CDB \033[05m...\033[0m"
   INIT_CDB_FILE="/data/app/oracle/product/12.2.0/db_1/dbs/initcdb.ora"
-  wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/initcdb.ora -O ${INIT_CDB_FILE}
+  if [[ ${Get_Config_Method} == "1" ]]; then
+    rm -rf ${INIT_CDB_FILE}
+    cp ${root_path}/conf/initcdb.ora ${INIT_CDB_FILE}
+  else
+      wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/conf/initcdb.ora -O ${INIT_CDB_FILE}
+  fi
   if [[ ${SID} != 'oriedb' ]];then
     sed -i "s/oriedb/${SID}/g" ${INIT_CDB_FILE}
   fi
   if [[ ${MemTotle} -gt 4 ]];then
     cdb_mem=`expr ${MemTotle} / 3`
-    proc=`expr 150 * ${cdb_mem}`
+    proc=`expr 150 \* ${cdb_mem}`
     sed -i "s/memory_target=1G/memory_target=${cdb_mem}G/g" ${INIT_CDB_FILE}
-    sed -i "s/processes = 150/processes = ${proc}" ${INIT_CDB_FILE}
+    sed -i "s/processes = 150/processes = ${proc}/g" ${INIT_CDB_FILE}
   fi
   chown -R oracle:oinstall ${INIT_CDB_FILE}
   su - oracle -c "
@@ -304,6 +321,7 @@ function cdb_pdb() {
   mkdir -p /data/app/oracle/admin/${SID}/adump
   mkdir -p /data/app/oracle/fast_recovery_area
   "
+  echo ${cdb_sql}
   su - oracle -c "${cdb_sql}"
   su - oracle -c "sed -i '35s/util/Util/g' /data/app/oracle/product/12.2.0/db_1/rdbms/admin/catcdb.pl"
   echo -e '\033[42;31mFollow the steps to run the following commands\033[0m

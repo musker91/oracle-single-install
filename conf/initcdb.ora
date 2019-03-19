@@ -9,7 +9,7 @@ db_domain=''
 db_recovery_file_dest='/data/app/oracle/fast_recovery_area'
 db_recovery_file_dest_size=2G
 diagnostic_dest='/data/app/oracle'
-dispatchers='(PROTOCOL=TCP) (SERVICE=orcl)'
+dispatchers='(PROTOCOL=TCP) (SERVICE=oriedb)'
 open_cursors=300
 remote_login_passwordfile='EXCLUSIVE'
 undo_tablespace='UNDOTBS1'
