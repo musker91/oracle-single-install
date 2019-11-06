@@ -3,6 +3,7 @@
 #oracle 12c
 #local host ip
 #address: https://github.com/spdir/oracle-single-install
+# 国内仓库地址: https://gitee.com/spdir/oracle-single-install
 HostIP=""
 #oracle user password
 OracleUserPasswd="oracle.com"
@@ -201,7 +202,9 @@ function oracle_file() {
   unzip /tmp/linuxx64_12201_database.zip -d /tmp
   chown -R oracle:oinstall /tmp/database
   #get install config file
-  mkdir ${response} && cd ${response}
+  mkdir -p ${response} && cd ${response}
+  # delete old config
+  rm -rf {db_install.rsp,dbca_single.rsp}
   # get config method
   if [[ ${Get_Config_Method} == "1" ]]; then
     cp ${root_path}/conf/db_install.rsp .
@@ -299,12 +302,13 @@ function single_instance() {
 function cdb_pdb() {
   echo -e "\033[34mInstallNotice >>\033[0m \033[32mStart install CDB \033[05m...\033[0m"
   INIT_CDB_FILE="/data/app/oracle/product/12.2.0/db_1/dbs/initcdb.ora"
+  rm -rf ${INIT_CDB_FILE}
   if [[ ${Get_Config_Method} == "1" ]]; then
-    rm -rf ${INIT_CDB_FILE}
     cp ${root_path}/conf/initcdb.ora ${INIT_CDB_FILE}
   else
       wget https://raw.githubusercontent.com/spdir/oracle-single-install/master/conf/initcdb.ora -O ${INIT_CDB_FILE}
   fi
+  
   if [[ ${SID} != 'oriedb' ]];then
     sed -i "s/oriedb/${SID}/g" ${INIT_CDB_FILE}
   fi
